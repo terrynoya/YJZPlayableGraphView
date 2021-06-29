@@ -24,6 +24,11 @@ namespace YaoJZ.Playable.Node
             AnimationClipPlayable animPlayable = (AnimationClipPlayable)_playable;
             AnimationClip clip = animPlayable.GetAnimationClip();
             
+            if(clip == null)
+            {
+                return;
+            }
+
             _animClipField = new ObjectField();
             _animClipField.objectType = typeof(AnimationClip);
             _animClipField.value = clip;

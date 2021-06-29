@@ -22,7 +22,7 @@ namespace YaoJZ.Playable.PlayableViewer
         private PlayableGraph _graphData;
 
         private List<PlayableNodeViewBase> _nodes = new List<PlayableNodeViewBase>();
-
+        private List<Edge> _edges = new List<Edge>();
         public PlayableGraph GraphData
         {
             get { return _graphData; }
@@ -61,8 +61,24 @@ namespace YaoJZ.Playable.PlayableViewer
         //     AddElement(edge);
         // }
 
+
+        private void ClearNodes()
+        {
+            foreach (var edge in _edges)
+            {
+                RemoveElement(edge);
+            }
+            _edges.Clear();
+            foreach (var node in _nodes)
+            {
+                RemoveElement(node);
+            }
+            _nodes.Clear();
+        }
+
         private void Refresh()
         {
+            ClearNodes();
             //this.RemoveAllChildren();
             int outputCount = _graphData.GetOutputCount();
             for (int i = 0; i < outputCount; i++)
@@ -76,24 +92,31 @@ namespace YaoJZ.Playable.PlayableViewer
             {
                 PlayableOutput output =  _graphData.GetOutput(i);
                 UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-                var node = GetNodeByPlayable(playable);
-                for (int j = 0; j < playable.GetInputCount(); j++)
-                {
-                    var input = playable.GetInput(j);
-                    var inputNode = GetNodeByPlayable(input);
+                AddEdges(playable);
+            }
+        }
 
-                    var outputPort = inputNode.GetPort(Direction.Output, 0);
-                    var inputPort = node.GetPort(Direction.Input, j);
-                    Edge edge = new Edge();
-                    edge.output = outputPort;
-                    edge.input = inputPort;
+        private void AddEdges(UnityEngine.Playables.Playable playable)
+        {
+            var node = GetNodeByPlayable(playable);
+            for (int j = 0; j < playable.GetInputCount(); j++)
+            {
+                var input = playable.GetInput(j);
+                var inputNode = GetNodeByPlayable(input);
 
-                    outputPort.Connect(edge);
-                    inputPort.Connect(edge);
-                    
-                    AddElement(edge);
-                    
-                }
+                var outputPort = inputNode.GetPort(Direction.Output, 0);
+                var inputPort = node.GetPort(Direction.Input, j);
+                Edge edge = new Edge();
+                edge.output = outputPort;
+                edge.input = inputPort;
+
+                outputPort.Connect(edge);
+                inputPort.Connect(edge);
+
+                AddElement(edge);
+                _edges.Add(edge);
+
+                AddEdges(input);
             }
         }
 
