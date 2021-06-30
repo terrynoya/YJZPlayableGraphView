@@ -86,7 +86,7 @@ namespace YaoJZ.Playable.PlayableViewer
             {
                 PlayableOutput output =  _graphData.GetOutput(i);
                 UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-                CreateChildrenPlayable(playable);
+                CreateChildrenPlayable(playable,0);
             }
             
             for (int i = 0; i < outputCount; i++)
@@ -142,7 +142,7 @@ namespace YaoJZ.Playable.PlayableViewer
             return null;
         }
 
-        private void CreateChildrenPlayable(UnityEngine.Playables.Playable playable)
+        private void CreateChildrenPlayable(UnityEngine.Playables.Playable playable,int depth = 0,int siblingIndex=0)
         {
             PlayableNodeViewBase node = null;
             if (playable.GetPlayableType() == typeof(AnimationClipPlayable))
@@ -153,13 +153,15 @@ namespace YaoJZ.Playable.PlayableViewer
             {
                 node = new PlayableNodeViewBase(playable);
             }
+            node.SetPosition(new Rect(-depth*200,siblingIndex*200,0,0));
             _nodes.Add(node);
             AddElement(node);
             int len = playable.GetInputCount();
             for (int i = 0; i < len; i++)
             {
                 var input = playable.GetInput(i);
-                CreateChildrenPlayable(input);
+                CreateChildrenPlayable(input,depth+1,siblingIndex);
+                siblingIndex++;
             }
         }
 

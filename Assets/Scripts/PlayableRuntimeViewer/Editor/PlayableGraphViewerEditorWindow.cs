@@ -105,7 +105,7 @@ namespace YaoJZ.Playable.PlayableViewer
             if (EditorApplication.isPlaying)
             {
                 Repaint();
-                _graphView.UpdateView();
+                _graphView?.UpdateView();
             }
         }
     }
