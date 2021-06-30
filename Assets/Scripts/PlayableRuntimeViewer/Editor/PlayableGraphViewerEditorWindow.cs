@@ -4,19 +4,22 @@
 //
 //=================================================
 
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.UIElements;
 
 namespace YaoJZ.Playable.PlayableViewer
 {
     public class PlayableGraphViewerEditorWindow:EditorWindow
     {
         private PlayableGraphView _graphView;
-
+        private int _selectedIndex;
         private List<PlayableGraph> _graphDatas = new List<PlayableGraph>();
-        
+        private List<string> _displayOptions = new List<string>();
+            
         [MenuItem("YJZ/PlayableGraphViewer")]
         public static void Open()
         {
@@ -40,8 +43,68 @@ namespace YaoJZ.Playable.PlayableViewer
             {
                 _graphView.GraphData = _graphDatas[0];
             }
+            AddToolBar();
         }
         
+        void OnEnable()
+        {
+            //m_Graphs = new List<PlayableGraph>(UnityEditor.Playables.Utility.GetAllGraphs());
+
+            UnityEditor.Playables.Utility.graphCreated += OnGraphCreated;
+            UnityEditor.Playables.Utility.destroyingGraph += OnDestroyingGraph;
+        }
+        
+        void OnDisable()
+        {
+            UnityEditor.Playables.Utility.graphCreated -= OnGraphCreated;
+            UnityEditor.Playables.Utility.destroyingGraph -= OnDestroyingGraph;
+        }
+        
+        void OnGraphCreated(PlayableGraph graph)
+        {
+            if (!_graphDatas.Contains(graph))
+            {
+                _graphDatas.Add(graph);
+            }
+        }
+
+        void OnDestroyingGraph(PlayableGraph graph)
+        {
+            _graphDatas.Remove(graph);
+        }
+
+        private void AddToolBar()
+        {
+            var toolbar = new IMGUIContainer(OnGuiHandler);
+            rootVisualElement.Add(toolbar);
+        }
+
+        private void OnGuiHandler()
+        {
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            // if (GUILayout.Button("Excute", EditorStyles.toolbarButton))
+            // {
+            //     this.Excute();
+            //     // ExcuteGraph();
+            // }
+            // GUILayout.Space(6);
+            // if (GUILayout.Button("Show In Project", EditorStyles.toolbarButton))
+            // {
+            //     showInProjectRequested?.Invoke();
+            // }
+
+            //EditorGUILayout.DropdownButton("", FocusType.Passive);
+            var len = _graphDatas.Count;
+            if (len > 0 && _selectedIndex<=len-1)
+            {
+                var selectedGraph = _graphDatas[_selectedIndex];
+                EditorGUILayout.Popup(selectedGraph.ToString(), _selectedIndex, _displayOptions.ToArray());
+            }
+                
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
         void Update()
         {
             // If in Play mode, refresh the graph each update.
