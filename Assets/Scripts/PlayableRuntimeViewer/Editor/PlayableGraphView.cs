@@ -21,11 +21,14 @@ namespace YaoJZ.Playable.PlayableViewer
         private EditorWindow _editorWindow;
         private PlayableGraph _graphData;
         private Queue<UnityEngine.Playables.Playable> _queue =new Queue<UnityEngine.Playables.Playable>();
+        private List<PlayableNodeViewBase> _tempDepthNodes = new List<PlayableNodeViewBase>();
 
         private List<PlayableNodeViewBase> _nodes = new List<PlayableNodeViewBase>();
         private List<Edge> _edges = new List<Edge>();
 
-        private Vector2 _cellSize = new Vector2(300,300);
+        private Vector2 _cellSize = new Vector2(250,200);
+        
+        private Dictionary<int,int> _depthCountMap = new Dictionary<int, int>();
         
         public PlayableGraph GraphData
         {
@@ -127,23 +130,43 @@ namespace YaoJZ.Playable.PlayableViewer
             {
                 var playable = _queue.Dequeue();
                 var node = GetNodeByPlayable(playable);
-                int len = playable.GetInputCount();
-                for (int i = 0; i < len; i++)
-                {
-                    _queue.Enqueue(playable.GetInput(i));
-                }
-                Debug.Log(node.Depth);
                 if (node.Depth != depth)
                 {
+                    depth = node.Depth;
                     index = 0;
                 }
                 else
                 {
                     index++;
                 }
-                depth = node.Depth;
-                node.SetPosition(new Rect(-depth*_cellSize.x,index*_cellSize.y,0,0));
+
+                int nodeCountInDepth = GetDepthCount(node.Depth);
+                node.SetPosition(new Rect(-depth*_cellSize.x,index*_cellSize.y - nodeCountInDepth/2f*_cellSize.y,0,0));
+                
+                int len = playable.GetInputCount();
+                for (int i = 0; i < len; i++)
+                {
+                    _queue.Enqueue(playable.GetInput(i));
+                }
             }
+        }
+
+        private void AddDepthMap(int depth)
+        {
+            if (!_depthCountMap.ContainsKey(depth))
+            {
+                _depthCountMap.Add(depth,1);
+            }
+            else
+            {
+                _depthCountMap[depth]++;
+            }
+        }
+
+        private int GetDepthCount(int depth)
+        {
+            _depthCountMap.TryGetValue(depth, out var value);
+            return value;
         }
 
         private void AddEdges(UnityEngine.Playables.Playable playable)
@@ -203,7 +226,7 @@ namespace YaoJZ.Playable.PlayableViewer
                 node = new PlayableNodeViewBase(playable);
             }
             node.Depth = depth;
-            //node.SetPosition(new Rect(-depth*200,0,0,0));
+            AddDepthMap(depth);
             _nodes.Add(node);
             AddElement(node);
             int len = playable.GetInputCount();
