@@ -82,23 +82,17 @@ namespace YaoJZ.Playable.PlayableViewer
         private void OnGuiHandler()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
-            // if (GUILayout.Button("Excute", EditorStyles.toolbarButton))
-            // {
-            //     this.Excute();
-            //     // ExcuteGraph();
-            // }
-            // GUILayout.Space(6);
-            // if (GUILayout.Button("Show In Project", EditorStyles.toolbarButton))
-            // {
-            //     showInProjectRequested?.Invoke();
-            // }
-
-            //EditorGUILayout.DropdownButton("", FocusType.Passive);
+            _displayOptions.Clear();
+            foreach (var graph in _graphDatas)
+            {
+                string name = graph.GetEditorName();
+                _displayOptions.Add(name.Length != 0 ? name : "[Unnamed]");
+            }
             var len = _graphDatas.Count;
             if (len > 0 && _selectedIndex<=len-1)
             {
                 var selectedGraph = _graphDatas[_selectedIndex];
-                EditorGUILayout.Popup(selectedGraph.ToString(), _selectedIndex, _displayOptions.ToArray());
+                EditorGUILayout.Popup(selectedGraph.GetEditorName(), _selectedIndex, _displayOptions.ToArray());
             }
                 
             GUILayout.FlexibleSpace();
