@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Experimental.GraphView;
+using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UIElements;
 
@@ -21,8 +23,12 @@ namespace YaoJZ.Playable.Node
         private Label _lblPlayState;
         private Label _lblTime;
 
+        private Label _lblDepth;
+
         private List<Port> _inputs = new List<Port>();
         private List<Port> _outputs = new List<Port>();
+
+        public int Depth;
 
         public UnityEngine.Playables.Playable Playable
         {
@@ -48,7 +54,14 @@ namespace YaoJZ.Playable.Node
         public PlayableNodeViewBase(UnityEngine.Playables.Playable playable)
         {
             _playable = playable;
+            
+            titleContainer.style.backgroundColor = GetColor();
+            style.color = Color.black;
+
             this.title = _playable.GetPlayableType().Name;
+            
+            _lblDepth = new Label();
+            mainContainer.Add(_lblDepth);
             
             _lblPlayState = new Label();
             mainContainer.Add(_lblPlayState);
@@ -81,6 +94,17 @@ namespace YaoJZ.Playable.Node
             UpdateView();
         }
 
+        private Color GetColor()
+        {
+            Type type = _playable.GetPlayableType();
+            if (type == null)
+                return Color.red;
+
+            string shortName = type.ToString().Split('.').Last();
+            float h = (float)Math.Abs(shortName.GetHashCode()) / int.MaxValue;
+            return Color.HSVToRGB(h, 0.6f, 1.0f);
+        }
+
         protected virtual void CreateChildren()
         {
             
@@ -92,6 +116,7 @@ namespace YaoJZ.Playable.Node
             _lblTime.text = $"Time:{_playable.GetTime()}";
             _lblInputCount.text = $"InputCount:{_playable.GetInputCount()}";
             _lblOutputCount.text = $"InputCount:{_playable.GetOutputCount()}";
+            _lblDepth.text = $"Depth:{Depth}";
         }
     }
 }

@@ -38,7 +38,7 @@ namespace YaoJZ.Playable.PlayableViewer
             rootVisualElement.Add(_graphView);
             _graphDatas.Clear();
             _graphDatas.AddRange(UnityEditor.Playables.Utility.GetAllGraphs());
-            Debug.Log(_graphDatas.Count.ToString());
+            Debug.Log($"graph count:{_graphDatas.Count}");
             if (_graphDatas.Count > 0)
             {
                 _graphView.GraphData = _graphDatas[0];

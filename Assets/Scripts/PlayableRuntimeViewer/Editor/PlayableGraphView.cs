@@ -19,11 +19,14 @@ namespace YaoJZ.Playable.PlayableViewer
     public class PlayableGraphView:GraphView
     {
         private EditorWindow _editorWindow;
-        
         private PlayableGraph _graphData;
+        private Queue<UnityEngine.Playables.Playable> _queue =new Queue<UnityEngine.Playables.Playable>();
 
         private List<PlayableNodeViewBase> _nodes = new List<PlayableNodeViewBase>();
         private List<Edge> _edges = new List<Edge>();
+
+        private Vector2 _cellSize = new Vector2(300,300);
+        
         public PlayableGraph GraphData
         {
             get { return _graphData; }
@@ -81,6 +84,13 @@ namespace YaoJZ.Playable.PlayableViewer
         {
             ClearNodes();
             //this.RemoveAllChildren();
+            CreateNodes();
+            AddEdges();
+            LayoutGraph();
+        }
+
+        private void CreateNodes()
+        {
             int outputCount = _graphData.GetOutputCount();
             for (int i = 0; i < outputCount; i++)
             {
@@ -88,12 +98,51 @@ namespace YaoJZ.Playable.PlayableViewer
                 UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
                 CreateChildrenPlayable(playable,0);
             }
-            
+        }
+
+        private void AddEdges()
+        {
+            int outputCount = _graphData.GetOutputCount();
             for (int i = 0; i < outputCount; i++)
             {
                 PlayableOutput output =  _graphData.GetOutput(i);
                 UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
                 AddEdges(playable);
+            }
+        }
+
+        private void LayoutGraph()
+        {
+            _queue.Clear();
+            int outputCount = _graphData.GetOutputCount();
+            for (int i = 0; i < outputCount; i++)
+            {
+                PlayableOutput output =  _graphData.GetOutput(i);
+                UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+                _queue.Enqueue(playable);
+            }
+            int depth = -1;
+            int index = 0;
+            while (_queue.Count > 0)
+            {
+                var playable = _queue.Dequeue();
+                var node = GetNodeByPlayable(playable);
+                int len = playable.GetInputCount();
+                for (int i = 0; i < len; i++)
+                {
+                    _queue.Enqueue(playable.GetInput(i));
+                }
+                Debug.Log(node.Depth);
+                if (node.Depth != depth)
+                {
+                    index = 0;
+                }
+                else
+                {
+                    index++;
+                }
+                depth = node.Depth;
+                node.SetPosition(new Rect(-depth*_cellSize.x,index*_cellSize.y,0,0));
             }
         }
 
@@ -142,7 +191,7 @@ namespace YaoJZ.Playable.PlayableViewer
             return null;
         }
 
-        private void CreateChildrenPlayable(UnityEngine.Playables.Playable playable,int depth = 0,int siblingIndex=0)
+        private void CreateChildrenPlayable(UnityEngine.Playables.Playable playable,int depth = 0)
         {
             PlayableNodeViewBase node = null;
             if (playable.GetPlayableType() == typeof(AnimationClipPlayable))
@@ -153,15 +202,15 @@ namespace YaoJZ.Playable.PlayableViewer
             {
                 node = new PlayableNodeViewBase(playable);
             }
-            node.SetPosition(new Rect(-depth*200,siblingIndex*200,0,0));
+            node.Depth = depth;
+            //node.SetPosition(new Rect(-depth*200,0,0,0));
             _nodes.Add(node);
             AddElement(node);
             int len = playable.GetInputCount();
             for (int i = 0; i < len; i++)
             {
                 var input = playable.GetInput(i);
-                CreateChildrenPlayable(input,depth+1,siblingIndex);
-                siblingIndex++;
+                CreateChildrenPlayable(input,depth+1);
             }
         }
 
