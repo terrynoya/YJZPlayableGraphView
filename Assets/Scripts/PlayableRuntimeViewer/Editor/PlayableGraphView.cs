@@ -30,6 +30,8 @@ namespace YaoJZ.Playable.PlayableViewer
         
         private Dictionary<int,int> _depthCountMap = new Dictionary<int, int>();
         
+        private int _selectedOutputIndex;
+        
         public PlayableGraph GraphData
         {
             get { return _graphData; }
@@ -38,6 +40,16 @@ namespace YaoJZ.Playable.PlayableViewer
                 _graphData = value;
                 Refresh();
             }
+        }
+
+        public int SelectedOutputIndex
+        {
+            get => _selectedOutputIndex;
+            set
+            {
+                _selectedOutputIndex = value;
+                Refresh();
+            } 
         }
 
         // private void TestRefresh()
@@ -94,36 +106,45 @@ namespace YaoJZ.Playable.PlayableViewer
 
         private void CreateNodes()
         {
-            int outputCount = _graphData.GetOutputCount();
-            for (int i = 0; i < outputCount; i++)
-            {
-                PlayableOutput output =  _graphData.GetOutput(i);
-                UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-                CreateChildrenPlayable(playable,0);
-            }
+            // int outputCount = _graphData.GetOutputCount();
+            // for (int i = 0; i < outputCount; i++)
+            // {
+            //     PlayableOutput output =  _graphData.GetOutput(i);
+            //     UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+            //     CreateChildrenPlayable(playable,0);
+            // }
+            PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
+            UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+            CreateChildrenPlayable(playable,0);
         }
 
         private void AddEdges()
         {
-            int outputCount = _graphData.GetOutputCount();
-            for (int i = 0; i < outputCount; i++)
-            {
-                PlayableOutput output =  _graphData.GetOutput(i);
-                UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-                AddEdges(playable);
-            }
+            // int outputCount = _graphData.GetOutputCount();
+            // for (int i = 0; i < outputCount; i++)
+            // {
+            //     PlayableOutput output =  _graphData.GetOutput(i);
+            //     UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+            //     AddEdges(playable);
+            // }
+            PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
+            UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+            AddEdges(playable);
         }
 
         private void LayoutGraph()
         {
             _queue.Clear();
-            int outputCount = _graphData.GetOutputCount();
-            for (int i = 0; i < outputCount; i++)
-            {
-                PlayableOutput output =  _graphData.GetOutput(i);
-                UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-                _queue.Enqueue(playable);
-            }
+            // int outputCount = _graphData.GetOutputCount();
+            // for (int i = 0; i < outputCount; i++)
+            // {
+            //     PlayableOutput output =  _graphData.GetOutput(i);
+            //     UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+            //     _queue.Enqueue(playable);
+            // }
+            PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
+            UnityEngine.Playables.Playable p =  output.GetSourcePlayable();
+            _queue.Enqueue(p);
             int depth = -1;
             int index = 0;
             while (_queue.Count > 0)
@@ -267,7 +288,6 @@ namespace YaoJZ.Playable.PlayableViewer
             
             // this.Insert(0,new GridBackground());
             this.Insert(0,new TempGridBackground());
-            
             
             //TestRefresh();
         }
