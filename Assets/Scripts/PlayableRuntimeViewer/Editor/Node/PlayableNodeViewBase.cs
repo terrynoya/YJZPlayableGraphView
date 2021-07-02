@@ -22,8 +22,13 @@ namespace YaoJZ.Playable.Node
         private Label _lblOutputCount;
         private Label _lblPlayState;
         private Label _lblTime;
+        private Label _lblValid;
+        private Label _lblDone;
+        private Label _lblDuration;
 
-        private Label _lblDepth;
+        // private Label _lblDepth;
+
+        private Label _lblSpeed;
 
         private List<Port> _inputs = new List<Port>();
         private List<Port> _outputs = new List<Port>();
@@ -60,8 +65,8 @@ namespace YaoJZ.Playable.Node
 
             this.title = _playable.GetPlayableType().Name;
             
-            _lblDepth = new Label();
-            mainContainer.Add(_lblDepth);
+            // _lblDepth = new Label();
+            // mainContainer.Add(_lblDepth);
             
             _lblPlayState = new Label();
             mainContainer.Add(_lblPlayState);
@@ -71,6 +76,16 @@ namespace YaoJZ.Playable.Node
             mainContainer.Add(_lblInputCount);
             _lblOutputCount = new Label();
             mainContainer.Add(_lblOutputCount);
+            _lblSpeed = new Label();
+            mainContainer.Add(_lblSpeed);
+            
+            _lblValid = new Label();
+            mainContainer.Add(_lblValid);
+            _lblDone = new Label();
+            mainContainer.Add(_lblDone);
+            
+            _lblDuration = new Label();
+            mainContainer.Add(_lblDuration);
 
             for (int i = 0; i < _playable.GetInputCount(); i++)
             {
@@ -116,7 +131,11 @@ namespace YaoJZ.Playable.Node
             _lblTime.text = $"Time:{_playable.GetTime()}";
             _lblInputCount.text = $"InputCount:{_playable.GetInputCount()}";
             _lblOutputCount.text = $"InputCount:{_playable.GetOutputCount()}";
-            _lblDepth.text = $"Depth:{Depth}";
+            _lblSpeed.text = $"Speed:{_playable.GetSpeed()}";
+            _lblDone.text = $"IsDone:{_playable.IsDone()}";
+            _lblValid.text = $"IsValid:{_playable.IsValid()}";
+            _lblDuration.text = $"Duration:{_playable.GetDuration()}";
+            // _lblDepth.text = $"Depth:{Depth}";
         }
     }
 }
