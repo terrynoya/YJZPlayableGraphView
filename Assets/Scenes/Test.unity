@@ -332,30 +332,6 @@ PlayableDirector:
     value: {fileID: 0}
   - key: {fileID: 7767409540876401136, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
     value: {fileID: 0}
-  - key: {fileID: -2778292862795239542, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: 5011943517982686603, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: -7810400312609627743, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: -798410862150702340, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: -5265335923232736301, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: -1899933544970099742, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: 7637280380823647239, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: 4590555487811379923, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: 525463560529377258, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: -8098371159382390732, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: 7538415990740490759, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
-  - key: {fileID: -5158679329676452528, guid: c96eaf5374a34bf4588f86eec07fcc1e, type: 2}
-    value: {fileID: 0}
   m_ExposedReferences:
     m_References: []
 --- !u!4 &1873930531
