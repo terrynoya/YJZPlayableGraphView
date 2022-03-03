@@ -79,7 +79,7 @@ namespace YaoJZ.Playable.PlayableViewer
                 int index = i;
                 var output = graph.GetOutput(index);
                 Debug.Log(output.GetEditorName());
-                genericMenu.AddItem(new GUIContent($"{output.GetEditorName()}_{index}"), false, () =>
+                genericMenu.AddItem(new GUIContent(output.GetEditorName()), false, () =>
                 {
                     _graphView.SelectedOutputIndex = index;
                     _changeGraphOutputIndexBtn.text = graph.GetOutput(index).GetEditorName();

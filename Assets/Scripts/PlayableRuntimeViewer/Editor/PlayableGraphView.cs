@@ -26,7 +26,7 @@ namespace YaoJZ.Playable.PlayableViewer
         private List<PlayableNodeViewBase> _nodes = new List<PlayableNodeViewBase>();
         private List<Edge> _edges = new List<Edge>();
 
-        private Vector2 _cellSize = new Vector2(250,200);
+        private Vector2 _cellSize = new Vector2(250,300);
         
         private Dictionary<int,int> _depthCountMap = new Dictionary<int, int>();
         
@@ -106,35 +106,36 @@ namespace YaoJZ.Playable.PlayableViewer
 
         private void CreateNodes()
         {
-            // int outputCount = _graphData.GetOutputCount();
-            // for (int i = 0; i < outputCount; i++)
-            // {
-            //     PlayableOutput output =  _graphData.GetOutput(i);
-            //     UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-            //     CreateChildrenPlayable(playable,0);
-            // }
-            PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
-            UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-            CreateChildrenPlayable(playable,0);
+            int outputCount = _graphData.GetOutputCount();
+            for (int i = 0; i < outputCount; i++)
+            {
+                PlayableOutput output =  _graphData.GetOutput(i);
+                UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+                CreateChildrenPlayable(playable,0);
+            }
+            
+            // PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
+            // UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+            // CreateChildrenPlayable(playable,0);
         }
 
         private void AddEdges()
         {
-            // int outputCount = _graphData.GetOutputCount();
-            // for (int i = 0; i < outputCount; i++)
-            // {
-            //     PlayableOutput output =  _graphData.GetOutput(i);
-            //     UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-            //     AddEdges(playable);
-            // }
-            PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
-            UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-            AddEdges(playable);
+            int outputCount = _graphData.GetOutputCount();
+            for (int i = 0; i < outputCount; i++)
+            {
+                PlayableOutput output =  _graphData.GetOutput(i);
+                UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+                AddEdges(playable);
+            }
+            // PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
+            // UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
+            // AddEdges(playable);
         }
 
         private void LayoutGraph()
         {
-            _queue.Clear();
+            // _queue.Clear();
             // int outputCount = _graphData.GetOutputCount();
             // for (int i = 0; i < outputCount; i++)
             // {
@@ -142,7 +143,19 @@ namespace YaoJZ.Playable.PlayableViewer
             //     UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
             //     _queue.Enqueue(playable);
             // }
-            PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
+            // PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
+            // LayoutPlayableOutput(output);
+
+            var outputCount = _graphData.GetOutputCount();
+            for (int i = 0; i < outputCount; i++)
+            {
+                var output = _graphData.GetOutput(i);
+                LayoutPlayableOutput(output,new Vector2(0,i*600));
+            }
+        }
+
+        private void LayoutPlayableOutput(PlayableOutput output,Vector2 offset)
+        {
             UnityEngine.Playables.Playable p =  output.GetSourcePlayable();
             _queue.Enqueue(p);
             int depth = -1;
@@ -162,7 +175,9 @@ namespace YaoJZ.Playable.PlayableViewer
                 }
 
                 int nodeCountInDepth = GetDepthCount(node.Depth);
-                node.SetPosition(new Rect(-depth*_cellSize.x,index*_cellSize.y - nodeCountInDepth/2f*_cellSize.y,0,0));
+                var x = -depth * _cellSize.x + offset.x;
+                var y = index * _cellSize.y - nodeCountInDepth / 2f * _cellSize.y + offset.y;
+                node.SetPosition(new Rect(x,y,0,0));
                 
                 int len = playable.GetInputCount();
                 for (int i = 0; i < len; i++)
