@@ -34,7 +34,7 @@ namespace YaoJZ.Playable.PlayableViewer
         
         public PlayableGraph GraphData
         {
-            get { return _graphData; }
+            get => _graphData;
             set
             {
                 _graphData = value;

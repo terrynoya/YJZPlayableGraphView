@@ -73,10 +73,13 @@ namespace YaoJZ.Playable.PlayableViewer
             {
                 return;
             }
-            for (int i = 0; i < graph.GetOutputCount(); i++)
+            var count = graph.GetOutputCount();
+            for (int i = 0; i < count; i++)
             {
                 int index = i;
-                genericMenu.AddItem(new GUIContent(graph.GetOutput(i).GetEditorName()), false, () =>
+                var output = graph.GetOutput(index);
+                Debug.Log(output.GetEditorName());
+                genericMenu.AddItem(new GUIContent($"{output.GetEditorName()}_{index}"), false, () =>
                 {
                     _graphView.SelectedOutputIndex = index;
                     _changeGraphOutputIndexBtn.text = graph.GetOutput(index).GetEditorName();
@@ -88,29 +91,38 @@ namespace YaoJZ.Playable.PlayableViewer
         private void OnChangeGraphClick()
         {
             GenericMenu genericMenu = new GenericMenu();
-            foreach (var type in _graphDatas)
+            Debug.Log($"graph count:{_graphDatas.Count}");
+            for (int i = 0; i < _graphDatas.Count; i++)
             {
-                genericMenu.AddItem(new GUIContent(type.ToString()), false, () =>
-                { 
-                    
-                });
+                var graph = _graphDatas[i];
+                var index = i;
+                genericMenu.AddItem(new GUIContent(graph.GetEditorName()), false, () =>
+                {
+                    _graphView.GraphData = graph;
+                    _selectedGraphIndex = index;
+                    UpdateGraphChangeBtnText();
+                });   
             }
-
             genericMenu.ShowAsContext();
+        }
+
+        private void UpdateGraphChangeBtnText()
+        {
+            var graph = _graphDatas[_selectedGraphIndex];
+            _changeGraphBtn.text = graph.GetEditorName();
         }
 
         void OnEnable()
         {
             //m_Graphs = new List<PlayableGraph>(UnityEditor.Playables.Utility.GetAllGraphs());
-
-            UnityEditor.Playables.Utility.graphCreated += OnGraphCreated;
-            UnityEditor.Playables.Utility.destroyingGraph += OnDestroyingGraph;
+            Utility.graphCreated += OnGraphCreated;
+            Utility.destroyingGraph += OnDestroyingGraph;
         }
         
         void OnDisable()
         {
-            UnityEditor.Playables.Utility.graphCreated -= OnGraphCreated;
-            UnityEditor.Playables.Utility.destroyingGraph -= OnDestroyingGraph;
+            Utility.graphCreated -= OnGraphCreated;
+            Utility.destroyingGraph -= OnDestroyingGraph;
         }
         
         void OnGraphCreated(PlayableGraph graph)
@@ -172,6 +184,17 @@ namespace YaoJZ.Playable.PlayableViewer
 
         void Update()
         {
+            _graphDatas.Clear();
+            _graphDatas.AddRange(Utility.GetAllGraphs());
+            if (_graphDatas.Count > 0)
+            {
+                var currentGraph = _graphDatas[0];
+                if (_graphView != null && !currentGraph.Equals(_graphView.GraphData))
+                {
+                    _graphView.GraphData = currentGraph;
+                    UpdateGraphChangeBtnText();
+                }
+            }
             // If in Play mode, refresh the graph each update.
             if (EditorApplication.isPlaying)
             {
