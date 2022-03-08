@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace YaoJZ.Playable.Node
 {
-    public class AnimationPlayableNodeView:PlayableNodeViewBase
+    public class AnimationPlayableNodeView:PlayableNodeView
     {
         private ObjectField _animClipField;
         private Label _lblClipLength;
@@ -16,12 +16,12 @@ namespace YaoJZ.Playable.Node
 
         protected override void CreateChildren()
         {
-            if (_playable.GetPlayableType() != typeof(AnimationClipPlayable))
+            if (Data.GetPlayableType() != typeof(AnimationClipPlayable))
             {
                 return;
             }
 
-            AnimationClipPlayable animPlayable = (AnimationClipPlayable)_playable;
+            AnimationClipPlayable animPlayable = (AnimationClipPlayable)Data;
             AnimationClip clip = animPlayable.GetAnimationClip();
             
             if(clip == null)

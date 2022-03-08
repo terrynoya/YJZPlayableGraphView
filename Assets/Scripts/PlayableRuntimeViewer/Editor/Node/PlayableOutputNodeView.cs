@@ -5,24 +5,50 @@
 //=================================================
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
+using UnityEditor.Playables;
+using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.UIElements;
 
 namespace YaoJZ.Playable.Node
 {
-    public class PlayableOutputNodeView:UnityEditor.Experimental.GraphView.Node
+    public class PlayableOutputNodeView:GraphNodeView<PlayableOutput>
     {
-        private PlayableOutput _data;
+        private List<Port> _inputs = new List<Port>();
+        private List<Port> _outputs = new List<Port>();
         
-        public PlayableOutputNodeView()
+        private Label _lblValid;
+        
+        public PlayableOutputNodeView(PlayableOutput data):base(data)
         {
-         
+            titleContainer.style.backgroundColor = GetColor();
+            style.color = Color.black;
+            
+            title = GetContentTypeShortName();
+            
+            var port = Port.Create<Edge>(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi,
+                typeof(Port));
+            port.portName = "input";
+            inputContainer.Add(port);
+            _inputs.Add(port);
+            
+            _lblValid = new Label();
+            mainContainer.Add(_lblValid);
         }
 
-        public void SetData(PlayableOutput data)
+        public override void UpdateView()
         {
-            _data = data;
-            title = GetContentTypeShortName();
+            title = _data.GetEditorName();
+            _lblValid.text = $"IsValid:{_data.IsOutputValid()}";
+        }
+
+        public override Port GetPort(Direction direction,int index)
+        {
+            List<Port> ports = direction == Direction.Input ? _inputs : _outputs;
+            return ports[index];
         }
         
         public string GetContentTypeShortName()
@@ -47,6 +73,12 @@ namespace YaoJZ.Playable.Node
         {
             Type type = _data.GetPlayableOutputType();
             return type == null ? "Null" : type.ToString();
+        }
+        
+        private Color GetColor()
+        {
+            Type type = _data.GetType();
+            return GetColor(type);
         }
     }
 }

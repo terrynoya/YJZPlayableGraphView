@@ -14,9 +14,8 @@ using UnityEngine.UIElements;
 
 namespace YaoJZ.Playable.Node
 {
-    public class PlayableNodeViewBase:UnityEditor.Experimental.GraphView.Node
+    public class PlayableNodeView:GraphNodeView<UnityEngine.Playables.Playable>
     {
-        protected UnityEngine.Playables.Playable _playable;
 
         private Label _lblInputCount;
         private Label _lblOutputCount;
@@ -32,13 +31,6 @@ namespace YaoJZ.Playable.Node
 
         private List<Port> _inputs = new List<Port>();
         private List<Port> _outputs = new List<Port>();
-
-        public int Depth;
-
-        public UnityEngine.Playables.Playable Playable
-        {
-            get => _playable;
-        }
         
         public List<Port> Inputs
         {
@@ -50,20 +42,18 @@ namespace YaoJZ.Playable.Node
             get => _outputs;
         }
 
-        public Port GetPort(Direction direction,int index)
+        public override Port GetPort(Direction direction,int index)
         {
             List<Port> ports = direction == Direction.Input ? _inputs : _outputs;
             return ports[index];
         }
         
-        public PlayableNodeViewBase(UnityEngine.Playables.Playable playable)
+        public PlayableNodeView(UnityEngine.Playables.Playable data) : base(data)
         {
-            _playable = playable;
-            
             titleContainer.style.backgroundColor = GetColor();
             style.color = Color.black;
 
-            this.title = _playable.GetPlayableType().Name;
+            this.title = data.GetPlayableType().Name;
             
             // _lblDepth = new Label();
             // mainContainer.Add(_lblDepth);
@@ -87,7 +77,7 @@ namespace YaoJZ.Playable.Node
             _lblDuration = new Label();
             mainContainer.Add(_lblDuration);
 
-            for (int i = 0; i < _playable.GetInputCount(); i++)
+            for (int i = 0; i < Data.GetInputCount(); i++)
             {
                 var port = Port.Create<Edge>(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi,
                     typeof(Port));
@@ -96,7 +86,7 @@ namespace YaoJZ.Playable.Node
                 _inputs.Add(port);
             }
             
-            for (int i = 0; i < _playable.GetOutputCount(); i++)
+            for (int i = 0; i < Data.GetOutputCount(); i++)
             {
                 var port = Port.Create<Edge>(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi,
                     typeof(Port));
@@ -111,13 +101,8 @@ namespace YaoJZ.Playable.Node
 
         private Color GetColor()
         {
-            Type type = _playable.GetPlayableType();
-            if (type == null)
-                return Color.red;
-
-            string shortName = type.ToString().Split('.').Last();
-            float h = (float)Math.Abs(shortName.GetHashCode()) / int.MaxValue;
-            return Color.HSVToRGB(h, 0.6f, 1.0f);
+            Type type = Data.GetPlayableType();
+            return GetColor(type);
         }
 
         protected virtual void CreateChildren()
@@ -125,16 +110,16 @@ namespace YaoJZ.Playable.Node
             
         }
 
-        public void UpdateView()
+        public override void UpdateView()
         {
-            _lblPlayState.text = $"PlayState:{_playable.GetPlayState()}";
-            _lblTime.text = $"Time:{_playable.GetTime()}";
-            _lblInputCount.text = $"InputCount:{_playable.GetInputCount()}";
-            _lblOutputCount.text = $"InputCount:{_playable.GetOutputCount()}";
-            _lblSpeed.text = $"Speed:{_playable.GetSpeed()}";
-            _lblDone.text = $"IsDone:{_playable.IsDone()}";
-            _lblValid.text = $"IsValid:{_playable.IsValid()}";
-            _lblDuration.text = $"Duration:{_playable.GetDuration()}";
+            _lblPlayState.text = $"PlayState:{Data.GetPlayState()}";
+            _lblTime.text = $"Time:{Data.GetTime()}";
+            _lblInputCount.text = $"InputCount:{Data.GetInputCount()}";
+            _lblOutputCount.text = $"InputCount:{Data.GetOutputCount()}";
+            _lblSpeed.text = $"Speed:{Data.GetSpeed()}";
+            _lblDone.text = $"IsDone:{Data.IsDone()}";
+            _lblValid.text = $"IsValid:{Data.IsValid()}";
+            _lblDuration.text = $"Duration:{Data.GetDuration()}";
             // _lblDepth.text = $"Depth:{Depth}";
         }
     }
