@@ -164,31 +164,37 @@ namespace YaoJZ.Playable.PlayableViewer
             for (int i = 0; i < outputCount; i++)
             {
                 var output = _graphData.GetOutput(i);
-                LayoutPlayableOutput(output,new Vector2(0,i*600));
-                //LayoutPlayableOutput2(output,new Vector2(0,i*600));
+                //LayoutPlayableOutput(output,new Vector2(0,i*600));
+                LayoutPlayableOutput2(output,new Vector2(0,i*800));
+            }
+        }
+
+        private void LayoutPlayable2(UnityEngine.Playables.Playable playable, Vector2 offset)
+        {
+            var node = GetNodeView(playable);
+            if (node != null)
+            {
+                var x = -node.Depth*_cellSize.x + offset.x;
+                var y = node.SiblingIndex*_cellSize.y + offset.y;
+                Debug.Log($"name:{node} depth:{node.Depth} index:{node.SiblingIndex}");
+                node.SetPosition(new Rect(x,y,0,0));    
+            }
+            
+            for (int i = 0; i < playable.GetInputCount(); i++)
+            {
+                var childP = playable.GetInput(i);
+                LayoutPlayable2(childP,offset);
             }
         }
         
         private void LayoutPlayableOutput2(PlayableOutput output, Vector2 offset)
         {
-            _queue.Clear();
-            UnityEngine.Playables.Playable p =  output.GetSourcePlayable();
-            _queue.Enqueue(p);
-            int yIndex = 0;
-            while (_queue.Count > 0)
-            {
-                var tmp = _queue.Dequeue();
-                var node = GetNodeView(tmp);
-                var x = -node.Depth * _cellSize.x;
-                var y = node.SiblingIndex * _cellSize.y;
-                node.SetPosition(new Rect(x,y,0,0));
-                
-                int len = tmp.GetInputCount();
-                for (int i = 0; i < len; i++)
-                {
-                    _queue.Enqueue(tmp.GetInput(i));
-                }
-            }
+            var node = GetNodeView(output);
+            var x = node.Depth*_cellSize.x + offset.x;
+            var y = node.SiblingIndex*_cellSize.y + offset.y;
+            node.SetPosition(new Rect(x,y,0,0));
+            var p = output.GetSourcePlayable();
+            LayoutPlayable2(p,offset);
         }
         
         private void LayoutPlayableOutput(PlayableOutput output,Vector2 offset)
@@ -250,16 +256,6 @@ namespace YaoJZ.Playable.PlayableViewer
             {
                 var input = playable.GetInput(j);
                 var inputNode = GetNodeView(input);
-
-                // var outputPort = inputNode.GetPort(Direction.Output, 0);
-                // var inputPort = node.GetPort(Direction.Input, j);
-                // Edge edge = new Edge();
-                // edge.output = outputPort;
-                // edge.input = inputPort;
-                //
-                // outputPort.Connect(edge);
-                // inputPort.Connect(edge);
-
                 var edge = GraphViewHelper.AddEdge(inputNode, node, 0, j);
                 AddElement(edge);
                 _edges.Add(edge);
@@ -306,6 +302,7 @@ namespace YaoJZ.Playable.PlayableViewer
                 node = new PlayableNodeView(playable);
             }
             node.Depth = depth;
+            Debug.Log(depth);
             node.SiblingIndex = index;
             AddDepthMap(depth);
             _nodes.Add(node);

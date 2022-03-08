@@ -7,8 +7,6 @@ namespace YaoJZ.Playable.Node
     public abstract class GraphNodeView<T>:GraphNodeViewBase
     {
         protected T _data;
-        public int Depth;
-        public int SiblingIndex;
 
         public T Data => _data;
 
@@ -25,6 +23,11 @@ namespace YaoJZ.Playable.Node
             string shortName = type.ToString().Split('.').Last();
             float h = (float)Math.Abs(shortName.GetHashCode()) / int.MaxValue;
             return Color.HSVToRGB(h, 0.6f, 1.0f);
+        }
+
+        public override string ToString()
+        {
+            return Data.ToString();
         }
     }
 }
