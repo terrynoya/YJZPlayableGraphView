@@ -13,6 +13,7 @@ using YaoJZ.Playable.Node;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Node = UnityEditor.Experimental.GraphView.Node;
 using Edge = UnityEditor.Experimental.GraphView.Edge;
 
 namespace YaoJZ.Playable.PlayableViewer
@@ -51,35 +52,6 @@ namespace YaoJZ.Playable.PlayableViewer
             } 
         }
 
-        // private void TestRefresh()
-        // {
-        //     PlayableGraph graph =PlayableGraph.Create("yjz_graph");
-        //     graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
-        //     
-        //     AnimationClipPlayable ap = AnimationClipPlayable.Create(graph,null);
-        //     PlayableNodeViewBase n0 = new PlayableNodeViewBase(ap);
-        //     var inputPort = Port.Create<Edge>(Orientation.Horizontal, Direction.Output, Port.Capacity.Multi,
-        //         typeof(Port));
-        //     n0.outputContainer.Add(inputPort);
-        //     AddElement(n0);
-        //
-        //     AnimationMixerPlayable mixer = AnimationMixerPlayable.Create(graph);
-        //     PlayableNodeViewBase mix = new AnimationPlayableNodeView(mixer);
-        //     AddElement(mix);
-        //     var outputPort =
-        //         Port.Create<Edge>(Orientation.Horizontal, Direction.Input, Port.Capacity.Multi, typeof(Port));
-        //     mix.inputContainer.Add(outputPort);
-        //     
-        //     Edge edge = new Edge();
-        //     edge.output = inputPort;
-        //     edge.input = outputPort;
-        //     edge.input.Connect(edge);
-        //     edge.output.Connect(edge);
-        //     
-        //     AddElement(edge);
-        // }
-
-
         private void ClearNodes()
         {
             foreach (var edge in _edges)
@@ -113,7 +85,7 @@ namespace YaoJZ.Playable.PlayableViewer
                 PlayableOutputNodeView nodeView = new PlayableOutputNodeView(output);
                 _nodes.Add(nodeView);
                 AddElement(nodeView);
-                CreatePlayableNodeViewRecirsive(playable,1);
+                CreatePlayableNodeViewRecirsive(nodeView,playable,1);
             }
             
             // PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
@@ -149,23 +121,20 @@ namespace YaoJZ.Playable.PlayableViewer
 
         private void LayoutGraph()
         {
-            // _queue.Clear();
-            // int outputCount = _graphData.GetOutputCount();
-            // for (int i = 0; i < outputCount; i++)
+            // var outputCount = _graphData.GetOutputCount();
+            // if (outputCount > 0)
             // {
-            //     PlayableOutput output =  _graphData.GetOutput(i);
-            //     UnityEngine.Playables.Playable playable =  output.GetSourcePlayable();
-            //     _queue.Enqueue(playable);
+            //     var output = _graphData.GetOutput(0);
+            //     //Layout(output);
+            //     LayoutPlayableOutput2(output,new Vector2(0,0));
             // }
-            // PlayableOutput output =  _graphData.GetOutput(_selectedOutputIndex);
-            // LayoutPlayableOutput(output);
-
             var outputCount = _graphData.GetOutputCount();
             for (int i = 0; i < outputCount; i++)
             {
                 var output = _graphData.GetOutput(i);
                 //LayoutPlayableOutput(output,new Vector2(0,i*600));
                 LayoutPlayableOutput2(output,new Vector2(0,i*800));
+                //Layout(output);
             }
         }
 
@@ -176,7 +145,6 @@ namespace YaoJZ.Playable.PlayableViewer
             {
                 var x = -node.Depth*_cellSize.x + offset.x;
                 var y = node.SiblingIndex*_cellSize.y + offset.y;
-                Debug.Log($"name:{node} depth:{node.Depth} index:{node.SiblingIndex}");
                 node.SetPosition(new Rect(x,y,0,0));    
             }
             
@@ -195,6 +163,85 @@ namespace YaoJZ.Playable.PlayableViewer
             node.SetPosition(new Rect(x,y,0,0));
             var p = output.GetSourcePlayable();
             LayoutPlayable2(p,offset);
+        }
+
+        private void Layout(PlayableOutput output)
+        {
+            List<GraphNodeViewBase> nodes = new List<GraphNodeViewBase>();
+            var root = GetNodeView(output);
+            var p =output.GetSourcePlayable();
+            CollectNodeLeafs(p, nodes);
+            foreach (var leafNode in nodes)
+            {
+                Debug.Log(leafNode.Depth);
+            }
+
+            // Debug.Log($"start layout output:{output.GetPlayableOutputType()}");
+            // List<GraphNodeViewBase> nodes = new List<GraphNodeViewBase>();
+            // var root = GetNodeView(output);
+            // var p =output.GetSourcePlayable();
+            // CollectNodeViews(p,nodes);
+            // nodes.Add(root);
+            // Debug.Log($"layout nodes:{nodes.Count}");
+            // float offsetY = 0;
+            // float yLength = 0;
+            // int depth = 0;
+            // GraphNodeViewBase parent = null;
+            // foreach (var node in nodes)
+            // {
+            //     var y = node.SiblingIndex * _cellSize.y;
+            //     if (depth == 0)
+            //     {
+            //         depth = node.Depth;    
+            //     }
+            //     if (depth > node.Depth)
+            //     {
+            //         
+            //     }
+            //     if (parent == null)
+            //     {
+            //         parent = node.Parent;
+            //     }
+            //     else if (parent == node)
+            //     {
+            //         parent = node.Parent;
+            //     }
+            //     else if(parent != node.parent)
+            //     {
+            //         
+            //     }
+            //
+            //     var x = node.Depth * _cellSize.x;
+            //     node.SetPosition(new Rect(x,y,0,0));
+            //     offsetY += y;
+            //     yLength += y;
+            //     // Debug.Log($"depth:{node.Depth} index:{node.SiblingIndex}");
+            // }
+        }
+        
+        private void CollectNodeLeafs(UnityEngine.Playables.Playable p,List<GraphNodeViewBase> nodes)
+        {
+            for (int i = 0; i < p.GetInputCount(); i++)
+            {
+                var childP = p.GetInput(i);
+                CollectNodeViews(childP,nodes);
+            }
+
+            var nodeView = GetNodeView(p);
+            if (nodeView.IsLeaf)
+            {
+                nodes.Add(nodeView);    
+            }
+        }
+
+        private void CollectNodeViews(UnityEngine.Playables.Playable p,List<GraphNodeViewBase> nodes)
+        {
+            for (int i = 0; i < p.GetInputCount(); i++)
+            {
+                var childP = p.GetInput(i);
+                CollectNodeViews(childP,nodes);
+            }
+            nodes.Add(GetNodeView(p));
         }
         
         private void LayoutPlayableOutput(PlayableOutput output,Vector2 offset)
@@ -290,7 +337,7 @@ namespace YaoJZ.Playable.PlayableViewer
             return null;
         }
 
-        private void CreatePlayableNodeViewRecirsive(UnityEngine.Playables.Playable playable,int depth = 0,int index = 0)
+        private void CreatePlayableNodeViewRecirsive(GraphNodeViewBase parentNodeView,UnityEngine.Playables.Playable playable,int depth = 0,int index = 0)
         {
             PlayableNodeView node = null;
             if (playable.GetPlayableType() == typeof(AnimationClipPlayable))
@@ -302,7 +349,9 @@ namespace YaoJZ.Playable.PlayableViewer
                 node = new PlayableNodeView(playable);
             }
             node.Depth = depth;
-            Debug.Log(depth);
+            node.Parent = parentNodeView;
+            parentNodeView.AddChild(node);
+            //Debug.Log(depth);
             node.SiblingIndex = index;
             AddDepthMap(depth);
             _nodes.Add(node);
@@ -312,7 +361,7 @@ namespace YaoJZ.Playable.PlayableViewer
             for (int i = 0; i < len; i++)
             {
                 var input = playable.GetInput(i);
-                CreatePlayableNodeViewRecirsive(input,depth+1,sibling);
+                CreatePlayableNodeViewRecirsive(node,input,depth+1,sibling);
                 sibling++;
             }
         }
