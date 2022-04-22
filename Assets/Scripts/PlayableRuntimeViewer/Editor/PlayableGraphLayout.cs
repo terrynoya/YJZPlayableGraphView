@@ -55,7 +55,21 @@ namespace YaoJZ.Playable
                 if (CheckChildrenCollision(node,out var maxY))
                 {
                     LayoutRootNode(node,maxY + nodeWidth);
+                    AdjustAllParentToMiddle(node);
                 }
+            }
+        }
+
+        private static void AdjustAllParentToMiddle(GraphNodeViewBase node)
+        {
+            node = node.Parent;
+            while (node != null)
+            {
+                float x = -node.Depth * nodeWidth;
+                var y = GetChildrenMiddleY(node);
+                node.Position = new Vector2(x, y);
+                UpdateNodePosition(node);
+                node = node.Parent;
             }
         }
 
@@ -74,7 +88,7 @@ namespace YaoJZ.Playable
                 LayoutRootNode(childNode,baseY);
             }
 
-            AddNodesInDepth(node);
+            //AddNodesInDepth(node);
             float x = -node.Depth * nodeWidth;
             //node.SetPosition(new Rect(x, node.SiblingIndex*nodeHeight,0,0));
             if (node.IsLeaf)
@@ -87,7 +101,7 @@ namespace YaoJZ.Playable
             else
             {
                 var y = GetChildrenMiddleY(node);
-                node.Position = new Vector2(x, y + baseY);
+                node.Position = new Vector2(x, y);
                 UpdateNodePosition(node);
             }
         }
@@ -136,7 +150,7 @@ namespace YaoJZ.Playable
                 min = Mathf.Min(min, p.y);
                 max = Mathf.Max(max, p.y);
             }
-            return (max - min) / 2;
+            return min+(max - min) / 2;
         }
     }
 }

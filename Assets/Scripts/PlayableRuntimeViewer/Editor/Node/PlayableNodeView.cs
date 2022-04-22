@@ -53,7 +53,7 @@ namespace YaoJZ.Playable.Node
             titleContainer.style.backgroundColor = GetColor();
             style.color = Color.black;
 
-            this.title = data.GetPlayableType().Name;
+            this.title = data.GetPlayableType().Name +$"SiblingIndex:{this.SiblingIndex}";
             
             // _lblDepth = new Label();
             // mainContainer.Add(_lblDepth);
@@ -120,6 +120,7 @@ namespace YaoJZ.Playable.Node
             _lblDone.text = $"IsDone:{Data.IsDone()}";
             _lblValid.text = $"IsValid:{Data.IsValid()}";
             _lblDuration.text = $"Duration:{Data.GetDuration()}";
+            //this.title = this.Data.GetPlayableType().Name +$"SiblingIndex:{this.SiblingIndex}";
             // _lblDepth.text = $"Depth:{Depth}";
         }
     }
