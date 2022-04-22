@@ -13,7 +13,6 @@ using YaoJZ.Playable.Node;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Node = UnityEditor.Experimental.GraphView.Node;
 using Edge = UnityEditor.Experimental.GraphView.Edge;
 
 namespace YaoJZ.Playable.PlayableViewer
@@ -22,10 +21,8 @@ namespace YaoJZ.Playable.PlayableViewer
     {
         private EditorWindow _editorWindow;
         private PlayableGraph _graphData;
-        private readonly Queue<UnityEngine.Playables.Playable> _queue =new Queue<UnityEngine.Playables.Playable>();
         private readonly List<GraphNodeViewBase> _nodes = new List<GraphNodeViewBase>();
         private readonly List<Edge> _edges = new List<Edge>();
-        private Vector2 _cellSize = new Vector2(250,300);
 
         private int _selectedOutputIndex;
 
@@ -120,147 +117,6 @@ namespace YaoJZ.Playable.PlayableViewer
             AddElement(edge);
             _edges.Add(edge);
             AddEdges(playable);
-        }
-
-        private void LayoutPlayable2(UnityEngine.Playables.Playable playable, Vector2 offset)
-        {
-            var node = GetNodeView(playable);
-            if (node != null)
-            {
-                var x = -node.Depth*_cellSize.x + offset.x;
-                var y = node.SiblingIndex*_cellSize.y + offset.y;
-                node.SetPosition(new Rect(x,y,0,0));    
-            }
-            
-            for (int i = 0; i < playable.GetInputCount(); i++)
-            {
-                var childP = playable.GetInput(i);
-                LayoutPlayable2(childP,offset);
-            }
-        }
-        
-        private void LayoutPlayableOutput2(PlayableOutput output, Vector2 offset)
-        {
-            var node = GetNodeView(output);
-            var x = node.Depth*_cellSize.x + offset.x;
-            var y = node.SiblingIndex*_cellSize.y + offset.y;
-            node.SetPosition(new Rect(x,y,0,0));
-            var p = output.GetSourcePlayable();
-            LayoutPlayable2(p,offset);
-        }
-
-        private void Layout(PlayableOutput output)
-        {
-            List<GraphNodeViewBase> nodes = new List<GraphNodeViewBase>();
-            var root = GetNodeView(output);
-            var p =output.GetSourcePlayable();
-            CollectNodeLeafs(p, nodes);
-            foreach (var leafNode in nodes)
-            {
-                Debug.Log(leafNode.Depth);
-            }
-
-            // Debug.Log($"start layout output:{output.GetPlayableOutputType()}");
-            // List<GraphNodeViewBase> nodes = new List<GraphNodeViewBase>();
-            // var root = GetNodeView(output);
-            // var p =output.GetSourcePlayable();
-            // CollectNodeViews(p,nodes);
-            // nodes.Add(root);
-            // Debug.Log($"layout nodes:{nodes.Count}");
-            // float offsetY = 0;
-            // float yLength = 0;
-            // int depth = 0;
-            // GraphNodeViewBase parent = null;
-            // foreach (var node in nodes)
-            // {
-            //     var y = node.SiblingIndex * _cellSize.y;
-            //     if (depth == 0)
-            //     {
-            //         depth = node.Depth;    
-            //     }
-            //     if (depth > node.Depth)
-            //     {
-            //         
-            //     }
-            //     if (parent == null)
-            //     {
-            //         parent = node.Parent;
-            //     }
-            //     else if (parent == node)
-            //     {
-            //         parent = node.Parent;
-            //     }
-            //     else if(parent != node.parent)
-            //     {
-            //         
-            //     }
-            //
-            //     var x = node.Depth * _cellSize.x;
-            //     node.SetPosition(new Rect(x,y,0,0));
-            //     offsetY += y;
-            //     yLength += y;
-            //     // Debug.Log($"depth:{node.Depth} index:{node.SiblingIndex}");
-            // }
-        }
-        
-        private void CollectNodeLeafs(UnityEngine.Playables.Playable p,List<GraphNodeViewBase> nodes)
-        {
-            for (int i = 0; i < p.GetInputCount(); i++)
-            {
-                var childP = p.GetInput(i);
-                CollectNodeViews(childP,nodes);
-            }
-
-            var nodeView = GetNodeView(p);
-            if (nodeView.IsLeaf)
-            {
-                nodes.Add(nodeView);    
-            }
-        }
-
-        private void CollectNodeViews(UnityEngine.Playables.Playable p,List<GraphNodeViewBase> nodes)
-        {
-            for (int i = 0; i < p.GetInputCount(); i++)
-            {
-                var childP = p.GetInput(i);
-                CollectNodeViews(childP,nodes);
-            }
-            nodes.Add(GetNodeView(p));
-        }
-        
-        private void LayoutPlayableOutput(PlayableOutput output,Vector2 offset)
-        {
-            _queue.Clear();
-            UnityEngine.Playables.Playable p =  output.GetSourcePlayable();
-            _queue.Enqueue(p);
-            int depth = -1;
-            int index = 0;
-            while (_queue.Count > 0)
-            {
-                var playable = _queue.Dequeue();
-                var node = GetNodeView(playable);
-                if (node.Depth != depth)
-                {
-                    depth = node.Depth;
-                    index = 0;
-                }
-                else
-                {
-                    index++;
-                }
-
-                //int nodeCountInDepth = GetDepthCount(node.Depth);
-                int nodeCountInDepth = 0;
-                var x = -depth * _cellSize.x + offset.x;
-                var y = index * _cellSize.y - nodeCountInDepth / 2f * _cellSize.y + offset.y;
-                node.SetPosition(new Rect(x,y,0,0));
-                
-                int len = playable.GetInputCount();
-                for (int i = 0; i < len; i++)
-                {
-                    _queue.Enqueue(playable.GetInput(i));
-                }
-            }
         }
 
         private void AddEdges(UnityEngine.Playables.Playable playable)
