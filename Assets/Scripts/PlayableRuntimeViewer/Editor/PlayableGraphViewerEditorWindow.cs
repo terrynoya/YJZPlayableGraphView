@@ -25,6 +25,7 @@ namespace YaoJZ.Playable.PlayableViewer
 
         private Button _changeGraphBtn;
         private Button _changeGraphOutputIndexBtn;
+        private Button _layoutBtn;
             
         [MenuItem("YJZ/PlayableGraphViewer")]
         public static void Open()
@@ -49,6 +50,12 @@ namespace YaoJZ.Playable.PlayableViewer
             _changeGraphOutputIndexBtn = new Button();
             _changeGraphOutputIndexBtn.clicked += OnChangeGraphOutputBtnClick;
             rootVisualElement.Add(_changeGraphOutputIndexBtn);
+
+            _layoutBtn = new Button();
+            _layoutBtn.text = "layout graph";
+            _layoutBtn.clicked += OnLayoutBtnClick;
+            rootVisualElement.Add(_layoutBtn);
+            
             
             _graphDatas.Clear();
             _graphDatas.AddRange(UnityEditor.Playables.Utility.GetAllGraphs());
@@ -63,6 +70,11 @@ namespace YaoJZ.Playable.PlayableViewer
             }
             
             AddToolBar();
+        }
+
+        private void OnLayoutBtnClick()
+        {
+            PlayableGraphLayout.Layout(_graphView);
         }
 
         private void OnChangeGraphOutputBtnClick()
